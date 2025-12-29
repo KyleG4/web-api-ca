@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -7,14 +7,15 @@ import Button from "@mui/material/Button";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { styled } from '@mui/material/styles';
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { AuthContext } from "../../contexts/authContext"; // <--- IMPORT AUTH CONTEXT
 
 const Offset = styled('div')(({ theme }) => theme.mixins.toolbar);
 
-const SiteHeader = () => {
+const SiteHeader = ({ history }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -22,6 +23,7 @@ const SiteHeader = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   
   const navigate = useNavigate();
+  const context = useContext(AuthContext); // <--- ACCESS CONTEXT
 
   const menuOptions = [
     { label: "Home", path: "/" },
@@ -33,8 +35,8 @@ const SiteHeader = () => {
   ];
 
   const handleMenuSelect = (pageURL) => {
-    setAnchorEl(null);
-    navigate(pageURL);
+    setAnchorEl(null); // Close menu on select
+    navigate(pageURL, { replace: true });
   };
 
   const handleMenu = (event) => {
@@ -51,6 +53,7 @@ const SiteHeader = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             All you ever wanted to know about Movies!
           </Typography>
+          
             {isMobile ? (
               <>
                 <IconButton
@@ -85,6 +88,16 @@ const SiteHeader = () => {
                       {opt.label}
                     </MenuItem>
                   ))}
+                  {/* MOBILE AUTH BUTTONS */}
+                  {context.isAuthenticated ? (
+                    <MenuItem onClick={() => context.signout()}>
+                      Sign out
+                    </MenuItem>
+                  ) : (
+                    <MenuItem onClick={() => navigate('/login')}>
+                      Login
+                    </MenuItem>
+                  )}
                 </Menu>
               </>
             ) : (
@@ -98,6 +111,17 @@ const SiteHeader = () => {
                     {opt.label}
                   </Button>
                 ))}
+                
+                {/* DESKTOP AUTH BUTTONS */}
+                {context.isAuthenticated ? (
+                  <Button color="inherit" onClick={() => context.signout()}>
+                    Sign out
+                  </Button>
+                ) : (
+                  <Button color="inherit" onClick={() => navigate('/login')}>
+                    Login
+                  </Button>
+                )}
               </>
             )}
         </Toolbar>
