@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Navigate, Routes } from "react-router-dom"; // Changed to react-router-dom
+import { BrowserRouter, Route, Navigate, Routes } from "react-router-dom";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
@@ -12,10 +12,10 @@ import MovieReviewPage from "./pages/movieReviewPage";
 import SiteHeader from "./components/siteHeader";
 import MoviesContextProvider from "./contexts/moviesContext";
 
-// 1. IMPORT AUTH CONTEXT AND PAGES
 import AuthContextProvider from "./contexts/authContext";
 import LoginPage from "./pages/loginPage";
 import SignUpPage from "./pages/signUpPage";
+import ProtectedRoutes from "./protectedRoutes"; // <--- 1. IMPORT THIS
 
 import NowPlayingPage from "./pages/nowPlayingPage";
 import TopRatedPage from "./pages/topRatedPage";
@@ -37,26 +37,30 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <AuthContextProvider> {/* 2. WRAP THE APP IN AUTH CONTEXT */}
+        <AuthContextProvider>
           <SiteHeader />
           <MoviesContextProvider>
             <Routes>
-              {/* 3. ADD THE PUBLIC AUTH ROUTES */}
+              {/* PUBLIC ROUTES (Anyone can see these) */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpPage />} />
-
-              <Route path="/movies/favorites" element={<FavoriteMoviesPage />} />
-              <Route path="/reviews/form" element={<AddMovieReviewPage />} />
-              <Route path="/reviews/:id" element={<MovieReviewPage />} />
+              <Route path="/" element={<HomePage />} />
               <Route path="/movies/:id" element={<MovieDetailsPage />} />
+              <Route path="/reviews/:id" element={<MovieReviewPage />} />
               
               <Route path="/now-playing" element={<NowPlayingPage />} />
               <Route path="/top-rated" element={<TopRatedPage />} />
               <Route path="/upcoming" element={<UpcomingPage />} />
               <Route path="/movies/:id/recommendations" element={<RecommendationsPage />} />
-              <Route path="/watchlist" element={<WatchlistPage />} />
 
-              <Route path="/" element={<HomePage />} />
+              {/* PRIVATE ROUTES (Must be logged in) */}
+              {/* 2. Wrap these in ProtectedRoutes */}
+              <Route element={<ProtectedRoutes />}>
+                <Route path="/movies/favorites" element={<FavoriteMoviesPage />} />
+                <Route path="/watchlist" element={<WatchlistPage />} />
+                <Route path="/reviews/form" element={<AddMovieReviewPage />} />
+              </Route>
+
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </MoviesContextProvider>
