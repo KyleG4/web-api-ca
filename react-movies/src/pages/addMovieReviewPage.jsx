@@ -1,7 +1,7 @@
 import React from "react";
 import PageTemplate from "../components/templateMoviePage";
 import ReviewForm from "../components/reviewForm";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Navigate } from "react-router-dom"; // <--- Import Navigate
 import { useQuery } from "@tanstack/react-query";
 import { getMovie, postReview } from "../api/tmdb-api";
 import Spinner from "../components/spinner";
@@ -9,6 +9,14 @@ import Spinner from "../components/spinner";
 const WriteReviewPage = (props) => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // 1. SAFETY CHECK:
+  // If we arrived here without a movieId (e.g. via direct URL or bad redirect),
+  // send the user back to the home page immediately to prevent a crash.
+  if (!location.state || !location.state.movieId) {
+    return <Navigate to="/" replace />;
+  }
+
   const movieId = location.state.movieId;
 
   const { data: movie, error, isLoading, isError } = useQuery({
@@ -17,7 +25,6 @@ const WriteReviewPage = (props) => {
   });
 
   const handleSubmit = async (reviewData) => {
-    // 1. Structure the data for your API
     const review = {
         movieId: movie.id,
         author: reviewData.author,
@@ -25,10 +32,7 @@ const WriteReviewPage = (props) => {
         rating: reviewData.rating
     };
     
-    // 2. Send it to your backend
     await postReview(review);
-    
-    // 3. Redirect back to the movie details page
     navigate(`/movies/${movie.id}`);
   };
 
@@ -42,7 +46,6 @@ const WriteReviewPage = (props) => {
   
   return (
     <PageTemplate movie={movie}>
-      {/* Pass the handleSubmit function to the form */}
       <ReviewForm movie={movie} handleSubmit={handleSubmit} />
     </PageTemplate>
   );

@@ -13,10 +13,14 @@ const LoginPage = props => {
   };
 
   let location = useLocation();
+
+  // Capture the previous page location
   const { from } = location.state || { from: { pathname: "/" } };
 
   if (context.isAuthenticated === true) {
-    return <Navigate to={from} />;
+    // FIX: Explicitly pass 'from.pathname' and 'from.state' to ensure 
+    // the movieId is not lost during the redirect.
+    return <Navigate to={from.pathname} state={from.state} replace />;
   }
 
   return (
