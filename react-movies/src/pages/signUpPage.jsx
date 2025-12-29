@@ -10,7 +10,9 @@ const SignUpPage = props => {
   const [registered, setRegistered] = useState(false);
 
   const register = () => {
-    let passwordRegEx = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
+    // UPDATED REGEX: Matches your backend rules exactly
+    // At least 8 chars, 1 number, 1 letter, 1 special char
+    let passwordRegEx = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
     const validPassword = passwordRegEx.test(password);
 
     if (validPassword && password === passwordAgain) {
